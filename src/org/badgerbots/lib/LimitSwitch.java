@@ -13,7 +13,7 @@ public class LimitSwitch {
 
 	public boolean get()
 	{
-		return input.get();
+		return !input.get();
 	}
 DigitalInput input;
 }
