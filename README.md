@@ -1,6 +1,9 @@
 BadgerbotsLib
 ===
 
+#Important Note for 2013 Season
+FIRST changed the way the FRC Java extensions work for the 2013 season. Team 1306 is currently working on integrating the new structure into our code.
+
 ##License
 Copyright 2012 by Contributors
 
