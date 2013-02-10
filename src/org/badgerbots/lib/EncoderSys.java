@@ -1,4 +1,3 @@
-
 package org.badgerbots.lib;
 
 import edu.wpi.first.wpilibj.*;

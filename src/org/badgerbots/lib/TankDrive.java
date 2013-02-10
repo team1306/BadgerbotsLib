@@ -24,6 +24,8 @@ public class TankDrive
 	{
 		_leftJag = new Jaguar(leftChan);
 		_rightJag = new Jaguar(rightChan);
+		_leftJoy = leftJoy;
+		_rightJoy = rightJoy;
 	}
 
 	public TankDrive(Jaguar l, Jaguar r)
@@ -39,10 +41,12 @@ public class TankDrive
 		_leftJoy = new Joystick(leftPort);
 		_rightJoy = new Joystick(rightPort);
 	}
-
+	
+//Why are there many separate TankDrives instead of just one with smart inputs?
+	
 	public void singleDrive()
 	{
-		if (_leftJoy.getRawButton(3))
+		if (_leftJoy.getRawButton(3))  //Trigger button, should probably create boolean _triggerButton
 			setLeft(_leftJoy.getY()/5);
 		else
 			setLeft(_leftJoy.getY());
@@ -68,8 +72,8 @@ public class TankDrive
 
 	public void arcadeDrive()
 	{
-		double move = _rightJoy.getY();
-		double rotate = _rightJoy.getX();
+		double move = _rightJoy.getX();
+		double rotate = _rightJoy.getY();
 		double rightMotorSpeed, leftMotorSpeed;
 
 		if (move > 0.0)
