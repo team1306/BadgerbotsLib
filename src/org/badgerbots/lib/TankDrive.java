@@ -59,12 +59,16 @@ public class TankDrive
 
 	public void drive()
 	{
-		if (_leftJoy.getRawButton(3))
-			setLeft(_leftJoy.getY() / 5);
+		if(Math.abs(_leftJoy.getY()) < 0.1) 
+			setLeft(0);
+		else if (_leftJoy.getRawButton(3)) 
+			setLeft(-_leftJoy.getY() / 5);
 		else
-			setLeft(_leftJoy.getY());
+			setLeft(-_leftJoy.getY());
 		
-		if (_rightJoy.getRawButton(3))
+		if(Math.abs(_rightJoy.getY()) < 0.1) 
+			setRight(0);
+		else if (_rightJoy.getRawButton(3))
 			setRight(-_rightJoy.getY() / 5);
 		else
 			setRight(-_rightJoy.getY());
