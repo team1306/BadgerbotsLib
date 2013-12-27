@@ -5,7 +5,10 @@ import edu.wpi.first.wpilibj.*;
  *
  * @author Max Vrany
  */
-public class LimitSwitch {
+public class LimitSwitch
+{
+	DigitalInput input;
+	
 	public LimitSwitch (int port)
 	{
 		input = new DigitalInput (port);
@@ -13,7 +16,6 @@ public class LimitSwitch {
 
 	public boolean get()
 	{
-		return input.get();
+		return !input.get();
 	}
-DigitalInput input;
 }
