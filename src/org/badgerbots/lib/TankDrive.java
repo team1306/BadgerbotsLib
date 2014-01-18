@@ -1,174 +1,122 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package org.badgerbots.lib;
 
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.Joystick;
+import org.badgerbots.lib.Drive;
 
-public class TankDrive
-{
+/**
+ *
+ * @author Finn
+ */
+class TankDrive implements Drive {
 
-	boolean _square;
-	Jaguar _leftJag;
-	Jaguar _rightJag;
-	Joystick _leftJoy;
-	Joystick _rightJoy;
+    /**
+     * Creates a new TankDrive object.
+     *
+     * @param leftJag left Jaguar
+     * @param rightJag right Jaguar
+     * @param leftJoy left Joystick
+     * @param rightJoy right Joystick
+     * @param mode linear or quadratic
+     * @param reversed if true, forwards and backwards will be switched.
+     * @param deadband the size of the joystick zone in which the speed is 0
+     * @param maxSpeed the maximum speed the robot can go, from 0.0 to 1.0.
+     * Default: 1.0
+     * @param precSpeed the maximum speed while the robot is in precision mode.
+     * Default: 0.2
+     */
+    TankDrive(Jaguar leftJag, Jaguar rightJag, Joystick leftJoy, Joystick rightJoy, Mode mode, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
+        this.leftJag = leftJag;
+        this.rightJag = rightJag;
+        this.leftJoy = leftJoy;
+        this.rightJoy = rightJoy;
 
-	public TankDrive(Jaguar leftJag, Jaguar rightJag, Joystick leftJoy, Joystick rightJoy)
-	{
-		_square = false;
-		_leftJag = leftJag;
-		_rightJag = rightJag;
-		_leftJoy = leftJoy;
-		_rightJoy = rightJoy;
-	}
+        this.mode = mode;
+        this.reversed = reversed;
 
-	public TankDrive(int leftChan, int rightChan, Joystick leftJoy, Joystick rightJoy)
-	{
-		_leftJag = new Jaguar(leftChan);
-		_rightJag = new Jaguar(rightChan);
-		_leftJoy = leftJoy;
-		_rightJoy = rightJoy;
-	}
+        this.deadband = deadband;
+        this.maxSpeed = maxSpeed;
+        this.precSpeed = precSpeed;
+    }
 
-	public TankDrive(Jaguar l, Jaguar r)
-	{
-		_leftJag = l;
-		_rightJag = r;
-	}
+    void setMode(Mode mode) {
+        this.mode = mode;
+    }
 
-	public TankDrive(int leftChan, int rightChan, int leftPort, int rightPort)
-	{
-		_leftJag = new Jaguar(leftChan);
-		_rightJag = new Jaguar(rightChan);
-		_leftJoy = new Joystick(leftPort);
-		_rightJoy = new Joystick(rightPort);
-	}
-	
-//Why are there many separate TankDrives instead of just one with smart inputs?
-	
-	public void singleDrive()
-	{
-		if (_leftJoy.getRawButton(3))  //Trigger button, should probably create boolean _triggerButton
-			setLeft(_leftJoy.getY()/5);
-		else
-			setLeft(_leftJoy.getY());
-		
-		if (_leftJoy.getRawButton(3))
-			setRight(_leftJoy.getY()/-5);
-		else
-			setRight(-(_leftJoy.getY()));
-	}
+    /**
+     * Drives the robot. It then calculates and sets motor speeds. The left
+     * motor is reversed so that one motor spins clockwise while the other spins
+     * counterclockwise, making the robot drive straight
+     */
+    @Override
+    public void drive() {
 
-	public void drive()
-	{
-		if(Math.abs(_leftJoy.getY()) < 0.1) 
-			setLeft(0);
-		else if (_leftJoy.getRawButton(3)) 
-			setLeft(-_leftJoy.getY() / 5);
-		else
-			setLeft(-_leftJoy.getY());
-		
-		if(Math.abs(_rightJoy.getY()) < 0.1) 
-			setRight(0);
-		else if (_rightJoy.getRawButton(3))
-			setRight(-_rightJoy.getY() / 5);
-		else
-			setRight(-_rightJoy.getY());
-	}
+        if (leftJoy.getRawButton(3) && rightJoy.getRawButton(3)) {
+            leftJag.set(posToSpeed(-leftJoy.getY(), precSpeed));
+            rightJag.set(posToSpeed(rightJoy.getX(), precSpeed));
+        } else {
+            leftJag.set(posToSpeed(-leftJoy.getY(), maxSpeed));
+            rightJag.set(posToSpeed(rightJoy.getY(), maxSpeed));
+        }
+    }
 
-	public void arcadeDrive()
-	{
-		double move = _rightJoy.getX();
-		double rotate = _rightJoy.getY();
-		double rightMotorSpeed, leftMotorSpeed;
+    /**
+     * Finds the velocity for the motor in terms of leftJoyPos, deadband, and
+     * maxSpeed.
+     *
+     * @param joyPos position of the joystick
+     * @param max the maximum speed that the motor can go
+     * @return the speed to set the Jaguar to
+     */
+    private double posToSpeed(double joyPos, double max) {
+        if (Math.abs(joyPos) <= deadband) {
+            return 0.0;
+        } else {
+            if (mode.equals(Mode.LINEAR)) {
+                double m = max / (1 - deadband);
+                double b = -m * deadband;
 
-		if (move > 0.0)
-		{
-			if (rotate > 0.0)
-			{
-				leftMotorSpeed = move - rotate;
-				rightMotorSpeed = Math.max(move, rotate);
-			}
-			else
-			{
-				leftMotorSpeed = Math.max(move, -rotate);
-				rightMotorSpeed = move + rotate;
-			}
-		}
-		else
-		{
-			if (rotate > 0.0)
-			{
-				leftMotorSpeed = -Math.max(-move, rotate);
-				rightMotorSpeed = move + rotate;
-			}
-			else
-			{
-				leftMotorSpeed = move - rotate;
-				rightMotorSpeed = -Math.max(-move, -rotate);
-			}
+                if (joyPos > deadband) {
+                    return m * joyPos + b;
+                } else {
+                    return m * joyPos - b;
+                }
+            } else {
 
-		}
-		if (_rightJoy.getRawButton(3))
-		{
-			leftMotorSpeed /= 3;
-			rightMotorSpeed /= 3;
-		}
-		set(-leftMotorSpeed, -rightMotorSpeed);
-	}
+                double a = max / ((deadband - 1) * (deadband - 1));
+                double b = -2 * a * deadband;
+                double c = max - a - b;
 
-	public void set(double left, double right)
-	{
-		setLeft(left);
-		setRight(right);
-	}
+                if (joyPos > deadband) {
+                    return a * joyPos * joyPos + b * joyPos + c;
+                } else {
+                    return -(a * joyPos * joyPos + b * -joyPos + c);
+                }
+            }
 
-	public void set(double val)
-	{
-		set(val, val);
-	}
+        }
 
-	public double getSpeed()
-	{
-		return (_leftJag.get()+_rightJag.get())/2;
-	}
-	
-	public double getLeft()
-	{
-		return _leftJag.get();
-	}
-	
-	public double getRight()
-	{
-		return _rightJag.get();
-	}
+    }
 
-	public boolean moving()
-	{
-		return !(_leftJag.get() == 0 && _rightJag.get() == 0);
-	}
+    private final Jaguar leftJag;
+    private final Jaguar rightJag;
+    private final Joystick leftJoy;
+    private final Joystick rightJoy;
 
-	public void setLeft(double speed)
-	{
-		if (_square)
-		{
-			if (speed >= 0)  speed =  (speed * speed);
-			else            speed = -(speed * speed);
-		}
-		_leftJag.set(-speed);
-	}
+    private Mode mode;
+    private final boolean reversed;
 
-	public void setRight(double speed)
-	{
-		if (_square)
-		{
-			if (speed >= 0) speed =  (speed * speed);
-			else            speed = -(speed * speed);
-		}
-		_rightJag.set(speed);
-	}
+    private final double deadband;
+    private final double maxSpeed;
+    private final double precSpeed;
 
-	public void setSquare(boolean square)
-	{
-		_square = square;
-	}
+    enum Mode {
 
+        LINEAR, QUADRATIC;
+    }
 }
