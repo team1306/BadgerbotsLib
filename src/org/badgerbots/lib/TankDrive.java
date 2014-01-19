@@ -30,13 +30,13 @@ class TankDrive implements Drive {
      * @param precSpeed the maximum speed while the robot is in precision mode.
      * Default: 0.2
      */
-    TankDrive(Jaguar leftJag, Jaguar rightJag, Joystick leftJoy, Joystick rightJoy, Mode mode, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
+    TankDrive(Jaguar leftJag, Jaguar rightJag, Joystick leftJoy, Joystick rightJoy, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
         this.leftJag = leftJag;
         this.rightJag = rightJag;
         this.leftJoy = leftJoy;
         this.rightJoy = rightJoy;
 
-        this.mode = mode;
+        this.exponent = exponent;
         this.reversed = reversed;
 
         this.deadband = deadband;
@@ -44,8 +44,8 @@ class TankDrive implements Drive {
         this.precSpeed = precSpeed;
     }
 
-    void setMode(Mode mode) {
-        this.mode = mode;
+    void setPower(double exponent) {
+        this.exponent = exponent;
     }
 
     /**
@@ -56,12 +56,13 @@ class TankDrive implements Drive {
     @Override
     public void drive() {
 
+        int rev = reversed ? -1 : 1;
         if (leftJoy.getRawButton(3) && rightJoy.getRawButton(3)) {
-            leftJag.set(posToSpeed(-leftJoy.getY(), precSpeed));
-            rightJag.set(posToSpeed(rightJoy.getX(), precSpeed));
+            leftJag.set(rev * posToSpeed(-leftJoy.getY(), precSpeed));
+            rightJag.set(rev * posToSpeed(rightJoy.getX(), precSpeed));
         } else {
-            leftJag.set(posToSpeed(-leftJoy.getY(), maxSpeed));
-            rightJag.set(posToSpeed(rightJoy.getY(), maxSpeed));
+            leftJag.set(rev * posToSpeed(-leftJoy.getY(), maxSpeed));
+            rightJag.set(rev * posToSpeed(rightJoy.getY(), maxSpeed));
         }
     }
 
@@ -70,53 +71,31 @@ class TankDrive implements Drive {
      * maxSpeed.
      *
      * @param joyPos position of the joystick
-     * @param max the maximum speed that the motor can go
+     * @param max the maximum speed that the motor can go, usually maxSpeed or precSpeed
      * @return the speed to set the Jaguar to
      */
     private double posToSpeed(double joyPos, double max) {
         if (Math.abs(joyPos) <= deadband) {
             return 0.0;
+        } else if (joyPos > deadband) {
+            return max * Math.pow(joyPos - deadband, exponent) / Math.pow(1 - deadband, exponent);
         } else {
-            if (mode.equals(Mode.LINEAR)) {
-                double m = max / (1 - deadband);
-                double b = -m * deadband;
-
-                if (joyPos > deadband) {
-                    return m * joyPos + b;
-                } else {
-                    return m * joyPos - b;
-                }
-            } else {
-
-                double a = max / ((deadband - 1) * (deadband - 1));
-                double b = -2 * a * deadband;
-                double c = max - a - b;
-
-                if (joyPos > deadband) {
-                    return a * joyPos * joyPos + b * joyPos + c;
-                } else {
-                    return -(a * joyPos * joyPos + b * -joyPos + c);
-                }
-            }
-
+            return -max * Math.pow(-joyPos - deadband, exponent) / Math.pow(1 - deadband, exponent);
         }
 
     }
+
+    private double exponent;
 
     private final Jaguar leftJag;
     private final Jaguar rightJag;
     private final Joystick leftJoy;
     private final Joystick rightJoy;
 
-    private Mode mode;
     private final boolean reversed;
 
     private final double deadband;
     private final double maxSpeed;
     private final double precSpeed;
 
-    enum Mode {
-
-        LINEAR, QUADRATIC;
-    }
 }
