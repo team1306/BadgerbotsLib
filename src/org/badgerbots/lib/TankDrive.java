@@ -5,6 +5,7 @@
  */
 package org.badgerbots.lib;
 
+import com.sun.squawk.util.MathUtils;
 import edu.wpi.first.wpilibj.Jaguar;
 
 /**
@@ -45,30 +46,36 @@ public abstract class TankDrive implements Drive {
      *
      * @param exponent the new exponent
      */
-    void setPower(double exponent) {
+    void setExponent(double exponent) {
         this.exponent = exponent;
     }
-    
+
     /**
-     * Gets the position of the left joystick. Overridden by subclasses to allow for control by large joysticks or XBox joysticks.
+     * Gets the position of the left joystick. Overridden by subclasses to allow
+     * for control by large joysticks or XBox joysticks.
+     *
      * @return position of the left joystick, from -1.0 to 1.0
      */
     protected abstract double leftJoyPos();
+
     protected abstract double rightJoyPos();
-    
+
     /**
      * Finds whether the left joystick is in precision mode
+     *
      * @return true if precision mode is on
      */
     protected abstract boolean precisionLeft();
+
     protected abstract boolean precisionRight();
 
     /**
-     * Drives the robot. It sets motor speeds based on calculations from posToSpeed(). The left
-     * motor is reversed so that one motor spins clockwise while the other spins
-     * counterclockwise, making the robot drive straight. If "reversed" is set to true, it reverses both motors.
+     * Drives the robot. It sets motor speeds based on calculations from
+     * posToSpeed(). The left motor is reversed so that one motor spins
+     * clockwise while the other spins counterclockwise, making the robot drive
+     * straight. If "reversed" is set to true, it reverses both motors.
      */
-    @Override
+    //@Override
     public void drive() {
 
         int rev = reversed ? -1 : 1;
@@ -101,9 +108,9 @@ public abstract class TankDrive implements Drive {
         if (Math.abs(joyPos) <= deadband) {
             return 0.0;
         } else if (joyPos > deadband) {
-            return max * Math.pow(joyPos - deadband, exponent) / Math.pow(1 - deadband, exponent);
+            return max * MathUtils.pow(joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
         } else {
-            return -max * Math.pow(-joyPos - deadband, exponent) / Math.pow(1 - deadband, exponent);
+            return -max * MathUtils.pow(-joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
         }
 
     }
