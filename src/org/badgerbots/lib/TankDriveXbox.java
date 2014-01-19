@@ -19,24 +19,24 @@ public class TankDriveXbox extends TankDrive {
         this.control = control;
     }
 
-    @Override
+    //@Override
     protected double leftJoyPos() {
         return control.getLeftJoyY();
     }
 
-    @Override
+    //@Override
     protected double rightJoyPos() {
         return control.getRightJoyY();
     }
 
-    @Override
+    //@Override
     protected boolean precisionLeft() {
-        return control.getLeftTrigger() > 0.5;
+        return control.getButtonLS();
     }
 
-    @Override
+    //@Override
     protected boolean precisionRight() {
-        return control.getRightTrigger() > 0.5;
+        return control.getButtonRB();
     }
 
     private final XBoxController control;
