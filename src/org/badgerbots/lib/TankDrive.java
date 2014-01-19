@@ -22,7 +22,9 @@ class TankDrive implements Drive {
      * @param rightJag right Jaguar
      * @param leftJoy left Joystick
      * @param rightJoy right Joystick
-     * @param mode linear or quadratic
+     * @param exponent This is the exponent used in the calculation of motor
+     * speeds. If this is 1.0, then there is a linear relationship between the
+     * joystick position and the motor speed. If it is 2.0, it's parabolic, etc.
      * @param reversed if true, forwards and backwards will be switched.
      * @param deadband the size of the joystick zone in which the speed is 0
      * @param maxSpeed the maximum speed the robot can go, from 0.0 to 1.0.
@@ -44,14 +46,19 @@ class TankDrive implements Drive {
         this.precSpeed = precSpeed;
     }
 
+    /**
+     * Changes the exponent.
+     *
+     * @param exponent the new exponent
+     */
     void setPower(double exponent) {
         this.exponent = exponent;
     }
 
     /**
-     * Drives the robot. It then calculates and sets motor speeds. The left
+     * Drives the robot. It sets motor speeds based on calculations from posToSpeed(). The left
      * motor is reversed so that one motor spins clockwise while the other spins
-     * counterclockwise, making the robot drive straight
+     * counterclockwise, making the robot drive straight. If "reversed" is set to true, it reverses both motors.
      */
     @Override
     public void drive() {
@@ -67,11 +74,15 @@ class TankDrive implements Drive {
     }
 
     /**
-     * Finds the velocity for the motor in terms of leftJoyPos, deadband, and
-     * maxSpeed.
+     * Finds the velocity for the motor in terms of joyPos, deadband, maxSpeed,
+     * and exponent. The math here is a little confusing, and it is designed so
+     * that the motors don't start turning until the joystick leaves the
+     * deadband. At full throttle, the speed is "max." Between those points, the
+     * relationship is a curve, and the degree is "exponent."
      *
      * @param joyPos position of the joystick
-     * @param max the maximum speed that the motor can go, usually maxSpeed or precSpeed
+     * @param max the maximum speed that the motor can go, usually maxSpeed or
+     * precSpeed
      * @return the speed to set the Jaguar to
      */
     private double posToSpeed(double joyPos, double max) {
