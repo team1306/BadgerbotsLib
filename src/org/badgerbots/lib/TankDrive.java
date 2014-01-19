@@ -6,22 +6,18 @@
 package org.badgerbots.lib;
 
 import edu.wpi.first.wpilibj.Jaguar;
-import edu.wpi.first.wpilibj.Joystick;
-import org.badgerbots.lib.Drive;
 
 /**
  *
  * @author Finn
  */
-class TankDrive implements Drive {
+public abstract class TankDrive implements Drive {
 
     /**
      * Creates a new TankDrive object.
      *
      * @param leftJag left Jaguar
      * @param rightJag right Jaguar
-     * @param leftJoy left Joystick
-     * @param rightJoy right Joystick
      * @param exponent This is the exponent used in the calculation of motor
      * speeds. If this is 1.0, then there is a linear relationship between the
      * joystick position and the motor speed. If it is 2.0, it's parabolic, etc.
@@ -32,11 +28,9 @@ class TankDrive implements Drive {
      * @param precSpeed the maximum speed while the robot is in precision mode.
      * Default: 0.2
      */
-    TankDrive(Jaguar leftJag, Jaguar rightJag, Joystick leftJoy, Joystick rightJoy, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
+    public TankDrive(Jaguar leftJag, Jaguar rightJag, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
         this.leftJag = leftJag;
         this.rightJag = rightJag;
-        this.leftJoy = leftJoy;
-        this.rightJoy = rightJoy;
 
         this.exponent = exponent;
         this.reversed = reversed;
@@ -54,6 +48,20 @@ class TankDrive implements Drive {
     void setPower(double exponent) {
         this.exponent = exponent;
     }
+    
+    /**
+     * Gets the position of the left joystick. Overridden by subclasses to allow for control by large joysticks or XBox joysticks.
+     * @return position of the left joystick, from -1.0 to 1.0
+     */
+    protected abstract double leftJoyPos();
+    protected abstract double rightJoyPos();
+    
+    /**
+     * Finds whether the left joystick is in precision mode
+     * @return true if precision mode is on
+     */
+    protected abstract boolean precisionLeft();
+    protected abstract boolean precisionRight();
 
     /**
      * Drives the robot. It sets motor speeds based on calculations from posToSpeed(). The left
@@ -64,12 +72,16 @@ class TankDrive implements Drive {
     public void drive() {
 
         int rev = reversed ? -1 : 1;
-        if (leftJoy.getRawButton(3) && rightJoy.getRawButton(3)) {
-            leftJag.set(rev * posToSpeed(-leftJoy.getY(), precSpeed));
-            rightJag.set(rev * posToSpeed(rightJoy.getX(), precSpeed));
+
+        if (precisionLeft()) {
+            leftJag.set(rev * posToSpeed(-leftJoyPos(), precSpeed));
         } else {
-            leftJag.set(rev * posToSpeed(-leftJoy.getY(), maxSpeed));
-            rightJag.set(rev * posToSpeed(rightJoy.getY(), maxSpeed));
+            leftJag.set(rev * posToSpeed(-leftJoyPos(), maxSpeed));
+        }
+        if (precisionRight()) {
+            rightJag.set(rev * posToSpeed(rightJoyPos(), precSpeed));
+        } else {
+            rightJag.set(rev * posToSpeed(rightJoyPos(), maxSpeed));
         }
     }
 
@@ -100,8 +112,6 @@ class TankDrive implements Drive {
 
     private final Jaguar leftJag;
     private final Jaguar rightJag;
-    private final Joystick leftJoy;
-    private final Joystick rightJoy;
 
     private final boolean reversed;
 
