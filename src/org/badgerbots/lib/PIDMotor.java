@@ -35,6 +35,6 @@ public class PIDMotor
 	
 	public void setSpeed(double speed) {
 		double e = speed - encoder.getRate();
-		s = s + p*e + 
+		//s = s + p*e + 
 	}
 }
