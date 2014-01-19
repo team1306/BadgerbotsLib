@@ -15,7 +15,7 @@ public class EncoderSys_old
 
 	private Encoder _leftEnc;
 	private Encoder _rightEnc;
-	TankDrive drive;
+	TankDriveOld drive;
 	public double lasttime;
 	public static final double ACCEL = .01;
 
@@ -29,7 +29,7 @@ public class EncoderSys_old
 	
 	private static final double FEET_PER_COUNT = 0.0020138414446088418195273355021;
 	
-	public EncoderSys_old(int leftAChannel, int leftBChannel, int rightAChannel, int rightBChannel, TankDrive drive)
+	public EncoderSys_old(int leftAChannel, int leftBChannel, int rightAChannel, int rightBChannel, TankDriveOld drive)
 	{
 		_leftEnc = new Encoder(leftAChannel, leftBChannel, true);
 		_rightEnc = new Encoder(rightAChannel, rightBChannel, false);
@@ -51,7 +51,7 @@ public class EncoderSys_old
 		_rightEnc = b;
 	}
 
-	public EncoderSys_old(Encoder a, Encoder b, TankDrive drive)
+	public EncoderSys_old(Encoder a, Encoder b, TankDriveOld drive)
 	{
 		_leftEnc = a;
 		_rightEnc = b;
