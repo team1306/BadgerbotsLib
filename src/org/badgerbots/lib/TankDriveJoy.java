@@ -21,22 +21,22 @@ public class TankDriveJoy extends TankDrive {
         this.right = right;
     }
 
-    @Override
+    //@Override
     protected double leftJoyPos() {
         return left.getY();
     }
 
-    @Override
+    //@Override
     protected double rightJoyPos() {
         return right.getY();
     }
 
-    @Override
+    //@Override
     protected boolean precisionLeft() {
         return left.getRawButton(3);
     }
 
-    @Override
+    //@Override
     protected boolean precisionRight() {
         return right.getRawButton(3);
     }
