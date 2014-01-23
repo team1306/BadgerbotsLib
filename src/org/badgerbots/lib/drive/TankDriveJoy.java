@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.badgerbots.lib;
+package org.badgerbots.lib.drive;
 
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,28 +15,24 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class TankDriveJoy extends TankDrive {
 
-    public TankDriveJoy(Jaguar leftJag, Jaguar rightJag, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed, Joystick left, Joystick right) {
-        super(leftJag, rightJag, exponent, reversed, deadband, maxSpeed, precSpeed);
+    public TankDriveJoy(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed, Joystick left, Joystick right) {
+        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
         this.left = left;
         this.right = right;
     }
 
-    //@Override
     protected double leftJoyPos() {
         return left.getY();
     }
 
-    //@Override
     protected double rightJoyPos() {
         return right.getY();
     }
 
-    //@Override
     protected boolean precisionLeft() {
         return left.getRawButton(3);
     }
 
-    //@Override
     protected boolean precisionRight() {
         return right.getRawButton(3);
     }

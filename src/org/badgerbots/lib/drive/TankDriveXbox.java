@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.badgerbots.lib;
+package org.badgerbots.lib.drive;
 
 import edu.wpi.first.wpilibj.Jaguar;
+import org.badgerbots.lib.XBoxController;
 
 /**
  * Control the robot with the joysticks on the XBox controller.
@@ -14,27 +15,23 @@ import edu.wpi.first.wpilibj.Jaguar;
  */
 public class TankDriveXbox extends TankDrive {
 
-    public TankDriveXbox(Jaguar leftJag, Jaguar rightJag, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed, XBoxController control) {
-        super(leftJag, rightJag, exponent, reversed, deadband, maxSpeed, precSpeed);
+    public TankDriveXbox(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed, XBoxController control) {
+        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
         this.control = control;
     }
 
-    //@Override
     protected double leftJoyPos() {
         return control.getLeftJoyY();
     }
 
-    //@Override
     protected double rightJoyPos() {
         return control.getRightJoyY();
     }
 
-    //@Override
     protected boolean precisionLeft() {
         return control.getButtonLS();
     }
 
-    //@Override
     protected boolean precisionRight() {
         return control.getButtonRB();
     }

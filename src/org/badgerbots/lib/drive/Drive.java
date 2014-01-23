@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.badgerbots.lib;
+package org.badgerbots.lib.drive;
 
 import com.sun.squawk.util.MathUtils;
 import edu.wpi.first.wpilibj.Jaguar;
@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Jaguar;
  *
  * @author Finn
  */
-public abstract class TankDrive implements Drive {
+public abstract class Drive {
 
     /**
      * Creates a new TankDrive object.
@@ -22,23 +22,31 @@ public abstract class TankDrive implements Drive {
      * @param exponent This is the exponent used in the calculation of motor
      * speeds. If this is 1.0, then there is a linear relationship between the
      * joystick position and the motor speed. If it is 2.0, it's parabolic, etc.
-     * @param reversed if true, forwards and backwards will be switched.
      * @param deadband the size of the joystick zone in which the speed is 0
      * @param maxSpeed the maximum speed the robot can go, from 0.0 to 1.0.
      * Default: 1.0
      * @param precSpeed the maximum speed while the robot is in precision mode.
      * Default: 0.2
      */
-    public TankDrive(Jaguar leftJag, Jaguar rightJag, double exponent, boolean reversed, double deadband, double maxSpeed, double precSpeed) {
+    protected Drive(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed) {
         this.leftJag = leftJag;
         this.rightJag = rightJag;
 
         this.exponent = exponent;
-        this.reversed = reversed;
+        reverse = 1;
 
         this.deadband = deadband;
         this.maxSpeed = maxSpeed;
         this.precSpeed = precSpeed;
+    }
+
+    public abstract void drive();
+
+    public void reverse() {
+        Jaguar dummyJag = leftJag;
+        leftJag = rightJag;
+        rightJag = dummyJag;
+        reverse = -reverse;
     }
 
     /**
@@ -50,46 +58,16 @@ public abstract class TankDrive implements Drive {
         this.exponent = exponent;
     }
 
-    /**
-     * Gets the position of the left joystick. Overridden by subclasses to allow
-     * for control by large joysticks or XBox joysticks.
-     *
-     * @return position of the left joystick, from -1.0 to 1.0
-     */
-    protected abstract double leftJoyPos();
+    protected double exponent() {
+        return exponent;
+    }
 
-    protected abstract double rightJoyPos();
+    protected Jaguar leftJag() {
+        return leftJag;
+    }
 
-    /**
-     * Finds whether the left joystick is in precision mode
-     *
-     * @return true if precision mode is on
-     */
-    protected abstract boolean precisionLeft();
-
-    protected abstract boolean precisionRight();
-
-    /**
-     * Drives the robot. It sets motor speeds based on calculations from
-     * posToSpeed(). The left motor is reversed so that one motor spins
-     * clockwise while the other spins counterclockwise, making the robot drive
-     * straight. If "reversed" is set to true, it reverses both motors.
-     */
-    //@Override
-    public void drive() {
-
-        int rev = reversed ? -1 : 1;
-
-        if (precisionLeft()) {
-            leftJag.set(rev * posToSpeed(-leftJoyPos(), precSpeed));
-        } else {
-            leftJag.set(rev * posToSpeed(-leftJoyPos(), maxSpeed));
-        }
-        if (precisionRight()) {
-            rightJag.set(rev * posToSpeed(rightJoyPos(), precSpeed));
-        } else {
-            rightJag.set(rev * posToSpeed(rightJoyPos(), maxSpeed));
-        }
+    protected Jaguar rightJag() {
+        return rightJag;
     }
 
     /**
@@ -104,7 +82,7 @@ public abstract class TankDrive implements Drive {
      * precSpeed
      * @return the speed to set the Jaguar to
      */
-    private double posToSpeed(double joyPos, double max) {
+    protected double posToSpeed(double joyPos, double max) {
         if (Math.abs(joyPos) <= deadband) {
             return 0.0;
         } else if (joyPos > deadband) {
@@ -114,16 +92,9 @@ public abstract class TankDrive implements Drive {
         }
 
     }
-
     private double exponent;
 
-    private final Jaguar leftJag;
-    private final Jaguar rightJag;
-
-    private final boolean reversed;
-
-    private final double deadband;
-    private final double maxSpeed;
-    private final double precSpeed;
-
+    private Jaguar leftJag, rightJag;
+    private int reverse;
+    protected final double deadband, maxSpeed, precSpeed;
 }
