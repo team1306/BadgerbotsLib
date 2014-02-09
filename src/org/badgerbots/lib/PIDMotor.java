@@ -26,19 +26,19 @@ public class PIDMotor implements SpeedController{
         this.d = 0.0;
         lastSpeed = 0.0;
         if (i != 0) {
-            throw new UnsupportedOperationException("i is not yet supported");
+            throw new IllegalArgumentException("i is not yet supported");
         }
         if (d != 0) {
-            throw new UnsupportedOperationException("d is not yet supported");
+            throw new IllegalArgumentException("d is not yet supported");
         }
     }
     
     private double getMotorOutput(double speed) {
         double expected = speed;
-        double error = speed - encoder.getRate();
+        double error = expected - encoder.getRate();
         double pValue = error * p;
 
-        lastSpeed += p;
+        lastSpeed += pValue;
         return lastSpeed;
     }
 
@@ -47,22 +47,18 @@ public class PIDMotor implements SpeedController{
         motor.set(getMotorOutput(speed));
     }
 
-    @Override
     public double get() {
         return lastSpeed;
     }
 
-    @Override
     public void set(double speed, byte syncGroup) {
         motor.set(getMotorOutput(speed), syncGroup);
     }
 
-    @Override
     public void disable() {
         motor.disable();
     }
 
-    @Override
     public void pidWrite(double output) {
         motor.pidWrite(output);
     }
