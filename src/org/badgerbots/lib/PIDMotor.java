@@ -10,31 +10,60 @@ import edu.wpi.first.wpilibj.*;
  *
  * @author james
  */
-public class PIDMotor
-{
-	private Encoder encoder;
-	private Jaguar motor;
-	private double p, i, d;
-	private double s;
-	
-	public PIDMotor(int channel, int a, int b) {
-		motor = new Jaguar(channel);
-		encoder = new Encoder(a, b);
-	}
-	
-	public PIDMotor(Jaguar jag, Encoder enc) {
-		motor = jag;
-		encoder = enc;
-	}
-	
-	public void setK(double kp, double ki, double kd) {
-		p = kp;
-		i = ki;
-		d = kd;
-	}
-	
-	public void setSpeed(double speed) {
-		double e = speed - encoder.getRate();
-		//s = s + p*e + 
-	}
+public class PIDMotor implements SpeedController{
+
+    private final Encoder encoder;
+    private final Jaguar motor;
+    private final double p, i, d;
+
+    private double lastSpeed;
+
+    public PIDMotor(Jaguar jag, Encoder enc, double p, double i, double d) {
+        motor = jag;
+        encoder = enc;
+        this.p = p;
+        this.i = 0.0;
+        this.d = 0.0;
+        lastSpeed = 0.0;
+        if (i != 0) {
+            throw new UnsupportedOperationException("i is not yet supported");
+        }
+        if (d != 0) {
+            throw new UnsupportedOperationException("d is not yet supported");
+        }
+    }
+    
+    private double getMotorOutput(double speed) {
+        double expected = speed;
+        double error = speed - encoder.getRate();
+        double pValue = error * p;
+
+        lastSpeed += p;
+        return lastSpeed;
+    }
+
+    public void set(double speed) {
+
+        motor.set(getMotorOutput(speed));
+    }
+
+    @Override
+    public double get() {
+        return lastSpeed;
+    }
+
+    @Override
+    public void set(double speed, byte syncGroup) {
+        motor.set(getMotorOutput(speed), syncGroup);
+    }
+
+    @Override
+    public void disable() {
+        motor.disable();
+    }
+
+    @Override
+    public void pidWrite(double output) {
+        motor.pidWrite(output);
+    }
 }

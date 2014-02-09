@@ -6,7 +6,10 @@
 package org.badgerbots.lib.drive;
 
 import com.sun.squawk.util.MathUtils;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.SpeedController;
+import org.badgerbots.lib.PIDMotor;
 
 /**
  *
@@ -17,8 +20,8 @@ public abstract class Drive {
     /**
      * Creates a new TankDrive object.
      *
-     * @param leftJag left Jaguar
-     * @param rightJag right Jaguar
+     * @param leftMotor left Jaguar
+     * @param rightMotor right Jaguar
      * @param exponent This is the exponent used in the calculation of motor
      * speeds. If this is 1.0, then there is a linear relationship between the
      * joystick position and the motor speed. If it is 2.0, it's parabolic, etc.
@@ -28,9 +31,9 @@ public abstract class Drive {
      * @param precSpeed the maximum speed while the robot is in precision mode.
      * Default: 0.2
      */
-    protected Drive(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed) {
-        this.leftJag = leftJag;
-        this.rightJag = rightJag;
+    protected Drive(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed) {
+        this.leftMotor = leftMotor;
+        this.rightMotor = rightMotor;
 
         this.exponent = exponent;
         reverse = 1;
@@ -40,12 +43,13 @@ public abstract class Drive {
         this.precSpeed = precSpeed;
     }
 
+
     public abstract void drive();
 
     public void reverse() {
-        Jaguar dummyJag = leftJag;
-        leftJag = rightJag;
-        rightJag = dummyJag;
+        SpeedController dummyMotor = leftMotor;
+        leftMotor = rightMotor;
+        rightMotor = dummyMotor;
         reverse = -reverse;
     }
 
@@ -62,12 +66,12 @@ public abstract class Drive {
         return exponent;
     }
 
-    protected Jaguar leftJag() {
-        return leftJag;
+    protected SpeedController leftMotor() {
+        return leftMotor;
     }
 
-    protected Jaguar rightJag() {
-        return rightJag;
+    protected SpeedController rightMotor() {
+        return rightMotor;
     }
 
     /**
@@ -83,18 +87,30 @@ public abstract class Drive {
      * @return the speed to set the Jaguar to
      */
     protected double posToSpeed(double joyPos, double max) {
+        double speed;
         if (Math.abs(joyPos) <= deadband) {
-            return 0.0;
+            speed = 0.0;
         } else if (joyPos > deadband) {
-            return max * MathUtils.pow(joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
+            speed = max * MathUtils.pow(joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
         } else {
-            return -max * MathUtils.pow(-joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
+            speed = -max * MathUtils.pow(-joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
         }
 
+        return speed;
+
     }
+
+    protected void setRight(double joyPos, double max) {
+        rightMotor.set(posToSpeed(joyPos, max));
+    }
+
+    protected void setLeft(double joyPos, double max) {
+        leftMotor.set(posToSpeed(joyPos, max));
+    }
+
     private double exponent;
 
-    private Jaguar leftJag, rightJag;
+    private SpeedController leftMotor, rightMotor;
     private int reverse;
     protected final double deadband, maxSpeed, precSpeed;
 }

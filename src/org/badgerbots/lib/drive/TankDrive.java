@@ -5,7 +5,7 @@
  */
 package org.badgerbots.lib.drive;
 
-import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /**
  *
@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.Jaguar;
  */
 public abstract class TankDrive extends Drive {
 
-    public TankDrive(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed) {
-        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
+    public TankDrive(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed) {
+        super(leftMotor, rightMotor, exponent, deadband, maxSpeed, precSpeed);
     }
 
     /**
@@ -45,14 +45,19 @@ public abstract class TankDrive extends Drive {
     public void drive() {
 
         if (precisionLeft()) {
-            leftJag().set(posToSpeed(-leftJoyPos(), precSpeed));
+
+            leftMotor().set(posToSpeed(-leftJoyPos(), precSpeed));
         } else {
-            leftJag().set(posToSpeed(-leftJoyPos(), maxSpeed));
+
+            leftMotor().set(posToSpeed(-leftJoyPos(), maxSpeed));
         }
         if (precisionRight()) {
-            rightJag().set(posToSpeed(rightJoyPos(), precSpeed));
+
+            rightMotor().set(posToSpeed(rightJoyPos(), precSpeed));
+
         } else {
-            rightJag().set(posToSpeed(rightJoyPos(), maxSpeed));
+
+            rightMotor().set(posToSpeed(rightJoyPos(), maxSpeed));
         }
     }
 }

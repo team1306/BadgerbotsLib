@@ -1,15 +1,15 @@
 package org.badgerbots.lib.drive;
 
-import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /**
- *
+ * An extension of the Drive class that, unlike TankDrive, uses one joystick to control both motors.
  * @author Finn
  */
 public abstract class ArcadeDrive extends Drive {
 
-    protected ArcadeDrive(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed) {
-        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
+    protected ArcadeDrive(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed) {
+        super(leftMotor, rightMotor, exponent, deadband, maxSpeed, precSpeed);
     }
 
     protected abstract double joyX();
@@ -20,23 +20,23 @@ public abstract class ArcadeDrive extends Drive {
 
     public void drive1() {
 
-            double rotate = joyX();
-            double move = joyY();
+        double rotate = joyX();
+        double move = joyY();
 
-            if (Math.abs(rotate) > Math.abs(move)) {
-                rotate += rotate - move;
-            } else {
-                move += move - rotate;
-            }
-
-            if (precision()) {
-                leftJag().set(-posToSpeed((move + rotate) / 2, precSpeed));
-                rightJag().set(posToSpeed((move - rotate) / 2, precSpeed));
-            } else {
-                leftJag().set(-posToSpeed((move + rotate) / 2, maxSpeed));
-                rightJag().set(posToSpeed((move - rotate) / 2, maxSpeed));
-            }
+        if (Math.abs(rotate) > Math.abs(move)) {
+            rotate += rotate - move;
+        } else {
+            move += move - rotate;
         }
+
+        if (precision()) {
+            leftMotor().set(-posToSpeed((move + rotate) / 2, precSpeed));
+            rightMotor().set(posToSpeed((move - rotate) / 2, precSpeed));
+        } else {
+            leftMotor().set(-posToSpeed((move + rotate) / 2, maxSpeed));
+            rightMotor().set(posToSpeed((move - rotate) / 2, maxSpeed));
+        }
+    }
 
     public void drive() {
 
@@ -49,8 +49,15 @@ public abstract class ArcadeDrive extends Drive {
             rotate /= radius;
             move /= radius;
         }
-        leftJag().set(-posToSpeed(move + rotate, maxSpeed));
-        rightJag().set(posToSpeed(move - rotate, maxSpeed));
+        if (precision()) {
+            leftMotor().set(-posToSpeed(move + rotate, precSpeed));
+            rightMotor().set(posToSpeed(move - rotate, precSpeed));
+        } else {
+            leftMotor().set(-posToSpeed(move + rotate, maxSpeed));
+            rightMotor().set(posToSpeed(move - rotate, maxSpeed));
+        }
+        leftMotor().set(-posToSpeed(move + rotate, maxSpeed));
+        rightMotor().set(posToSpeed(move - rotate, maxSpeed));
     }
 
 }

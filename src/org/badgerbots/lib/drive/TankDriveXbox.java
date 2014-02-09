@@ -5,7 +5,7 @@
  */
 package org.badgerbots.lib.drive;
 
-import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.SpeedController;
 import org.badgerbots.lib.XBoxController;
 
 /**
@@ -15,8 +15,8 @@ import org.badgerbots.lib.XBoxController;
  */
 public class TankDriveXbox extends TankDrive {
 
-    public TankDriveXbox(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed, XBoxController control) {
-        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
+    public TankDriveXbox(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed, XBoxController control) {
+        super(leftMotor, rightMotor, exponent, deadband, maxSpeed, precSpeed);
         this.control = control;
     }
 

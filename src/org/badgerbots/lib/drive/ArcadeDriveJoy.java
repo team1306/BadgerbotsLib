@@ -5,8 +5,8 @@
  */
 package org.badgerbots.lib.drive;
 
-import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /**
  *
@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class ArcadeDriveJoy extends ArcadeDrive {
 
-    public ArcadeDriveJoy(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed, Joystick joystick) {
-        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
+    public ArcadeDriveJoy(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed, Joystick joystick) {
+        super(leftMotor, rightMotor, exponent, deadband, maxSpeed, precSpeed);
         this.joystick = joystick;
     }
 

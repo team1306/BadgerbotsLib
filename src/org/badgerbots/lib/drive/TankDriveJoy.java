@@ -7,6 +7,7 @@ package org.badgerbots.lib.drive;
 
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /**
  * Control the robot using TankDrive with two joysticks.
@@ -15,8 +16,8 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class TankDriveJoy extends TankDrive {
 
-    public TankDriveJoy(Jaguar leftJag, Jaguar rightJag, double exponent, double deadband, double maxSpeed, double precSpeed, Joystick left, Joystick right) {
-        super(leftJag, rightJag, exponent, deadband, maxSpeed, precSpeed);
+    public TankDriveJoy(SpeedController leftMotor, SpeedController rightMotor, double exponent, double deadband, double maxSpeed, double precSpeed, Joystick left, Joystick right) {
+        super(leftMotor, rightMotor, exponent, deadband, maxSpeed, precSpeed);
         this.left = left;
         this.right = right;
     }
