@@ -4,17 +4,23 @@
  */
 package org.badgerbots.lib;
 
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /**
+ * Represents a motor controlled with PID. It contains a Jaguar motor and an
+ * encoder. Because it implements SpeedController (as does Jaguar), it contains
+ * the same methods as Jaguar. Jaguar can be effectively replaced with PIDMotor.
+ * Currently, we are only implementing the P (proportional) part, not I or D.
  *
- * @author james
+ * @author Finn
  */
-public class PIDMotor implements SpeedController{
+public class PIDMotor implements SpeedController {
 
     private final Encoder encoder;
     private final Jaguar motor;
-    private final double p, i, d;
+    private double p, i, d;
 
     private double lastSpeed;
 
@@ -32,7 +38,7 @@ public class PIDMotor implements SpeedController{
             throw new IllegalArgumentException("d is not yet supported");
         }
     }
-    
+
     private double getMotorOutput(double speed) {
         double expected = speed;
         double error = expected - encoder.getRate();
@@ -45,6 +51,10 @@ public class PIDMotor implements SpeedController{
     public void set(double speed) {
 
         motor.set(getMotorOutput(speed));
+    }
+
+    public void setP(double p) {
+        this.p = p;
     }
 
     public double get() {
