@@ -37,6 +37,7 @@ public abstract class Drive {
 
         this.exponent = exponent;
         reverse = 1;
+        invert = 1;
 
         this.deadband = deadband;
         this.maxSpeed = maxSpeed;
@@ -46,10 +47,14 @@ public abstract class Drive {
 
     public abstract void drive();
 
-    public void reverse() {
+    public void invert() {
         SpeedController dummyMotor = leftMotor;
         leftMotor = rightMotor;
         rightMotor = dummyMotor;
+        invert = -invert;
+    }
+    
+    public void reverse() {
         reverse = -reverse;
     }
 
@@ -96,7 +101,7 @@ public abstract class Drive {
             speed = -max * MathUtils.pow(-joyPos - deadband, exponent) / MathUtils.pow(1 - deadband, exponent);
         }
 
-        return speed;
+        return reverse*speed;
 
     }
 
@@ -111,6 +116,6 @@ public abstract class Drive {
     private double exponent;
 
     private SpeedController leftMotor, rightMotor;
-    private int reverse;
+    private int reverse, invert;
     protected final double deadband, maxSpeed, precSpeed;
 }
