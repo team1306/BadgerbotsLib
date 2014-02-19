@@ -20,22 +20,27 @@ import edu.wpi.first.wpilibj.Timer;
 public class PIDMotor implements SpeedController {
 
     private final Encoder encoder;
-    private final Jaguar motor;
+    private final SpeedController motor;
     private double p, i, d;
 
     private double lastSpeed;
+    private double lastError;
+    private double lastUpdate;
 
     /**
      * Creates a new PIDMotor with the given motor, encoder, and PID constants.
      *
-     * @param jag The Jaguar motor to control
+     * @param motor The Motor motor to control
      * @param enc The encoder that's associated with the motor
      * @param p The proportional constant
      * @param i The integral constant. Currently unsupported.
-     * @param d The derivative constant. Currently unsupported.
+     * @param d The derivative constant.
      */
-    public PIDMotor(Jaguar jag, Encoder enc, double p, double i, double d) {
-        motor = jag;
+    public PIDMotor(SpeedController motor, Encoder enc, double p, double i, double d) {
+        if (motor instanceof PIDMotor) {
+            throw new IllegalArgumentException("This motor is already a PIDMotor");
+        }
+        this.motor = motor;
         encoder = enc;
         encoder.start();
         lastTime = Timer.getFPGATimestamp();
@@ -43,11 +48,10 @@ public class PIDMotor implements SpeedController {
         this.i = 0.0;
         this.d = 0.0;
         lastSpeed = 0.0;
+        lastError = 0.0;
+        lastUpdate = lastTime;
         if (i != 0) {
             throw new IllegalArgumentException("i is not yet supported");
-        }
-        if (d != 0) {
-            throw new IllegalArgumentException("d is not yet supported");
         }
     }
 
@@ -77,13 +81,27 @@ public class PIDMotor implements SpeedController {
         double expected = speed;
         double error = getEncoderRate() - expected;
         double pValue = error * p;
+        
+        double dValue;
+        double time = Timer.getFPGATimestamp();
+        if(d != 0 && time - lastTime != 0) {
+            dValue = -d * (lastError - error) / (time - lastUpdate);
+        } else {
+            dValue = 0;
+        }
+        lastError = error;
+        lastUpdate = time;
 
-        lastSpeed += pValue;
+        lastSpeed = Math.max(Math.min(lastSpeed + pValue + dValue, 1), -1);
         motor.set(lastSpeed);
     }
 
     public void setP(double p) {
         this.p = p;
+    }
+    
+    public void setD(double d) {
+        this.d = d;
     }
 
     public double get() {
